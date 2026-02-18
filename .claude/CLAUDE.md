@@ -45,7 +45,8 @@ npm lint
   - `ui/` - shadcn/ui pre-built components (Button, Card, Dialog, Form, etc.)
   - `slideshow/` - Custom slideshow components
     - `slideshow.tsx` - Main slideshow controller (manages navigation, animations, keyboard/custom events)
-    - `slides.tsx` - Individual slide components (CoverSlide, PresenterSlide, FeaturesSlide, TipsSlide)
+    - `slides.tsx` - Individual slide components (CoverSlide, PresenterSlide, FeaturesSlide, TipsSlide) + shared `MediaDisplay` component + `buildRound` algorithm
+    - `tips-data.ts` - All tip/idea content: `Tip` interface, `TIPS` array (25 entries), `DEFAULT_TIP_DURATION`
     - `demo-animations.tsx` - Animation utilities
     - `vercel-logos.tsx` - Brand asset components
   - `theme-provider.tsx` - Theme configuration provider
@@ -109,13 +110,39 @@ Use shadcn/ui's CLI (if configured) or copy from the existing `components/ui/` f
 
 Edit `components/slideshow/slides.tsx` to update slide content. Each slide is a component referenced in the `SLIDES` array in `slideshow.tsx`.
 
+### Adding or Editing Tips (Slide 4)
+
+All tip content lives in `components/slideshow/tips-data.ts`. Edit the `TIPS` array there — the carousel adapts automatically to any number of items.
+
+**`Tip` interface fields:**
+- `icon` — a `LucideIcon` component (import from `lucide-react`)
+- `title` — short display title
+- `description` — body text shown below the title
+- `tag` — category label. Use one of the three established values: `"Tip"`, `"Feature"`, or `"App Idea"`
+- `media?` — path to an image or video in `public/`. Auto-detected by extension; videos autoplay muted on loop
+- `duration?` — ms to display before auto-advancing (falls back to `DEFAULT_TIP_DURATION = 5000`)
+- `link?` — `{ label: string; href: string }` rendered as a "read more" anchor below the description
+
+**Carousel ordering — `buildRound` in `slides.tsx`:**
+The carousel never repeats an item until all 25 have been shown (one full round). At the start of each round, `buildRound(prevLastTag?)` produces a new randomised order using a greedy category-interleaving algorithm:
+1. Tips are grouped by `tag` and Fisher-Yates shuffled within each group
+2. Items are picked greedily from the largest group that differs from the last-shown category, keeping same-category runs rare
+3. When multiple groups are close in size (within 1), the pick is random to avoid a mechanical pattern
+4. The `prevLastTag` argument seeds the first pick so the category doesn't repeat across the round boundary
+
+The component uses `orderRef` (index sequence) and `posRef` (position within it) as refs, with `activeIndex` and `prevIndex` as state for rendering. Going forward past the last item of a round triggers a new `buildRound` call; going backward wraps within the current round.
+
 ### Adding Custom Animations
 
 Add keyframes to `tailwind.config.ts` in the `keyframes` section, then use them as animation classes. Complex animations can also use `<style jsx>` blocks as seen in `slideshow.tsx`.
 
-### Working with Images
+### Working with Images and Videos
 
-Images are in the `public/images/` directory. Use Next.js `Image` component where possible for optimization, but `<img>` tags are used when necessary (noted with `eslint-disable`).
+- `public/images/` — static images (e.g. `v0-logo.jpeg`, `design-system.png`)
+- `public/media/` — feature demo videos used in Slide 3 (`browse-templates.mp4`, `design-mode.mp4`, etc.)
+- `public/media/separate/` — individual tip videos used in Slide 4 (`database.mp4`, `env-variables.mp4`, `vercel-ai-sdk.mp4`, `image-to-website.mp4`)
+
+Use Next.js `Image` component where possible for optimization, but `<img>` tags are used when necessary (noted with `eslint-disable`). The shared `MediaDisplay` component in `slides.tsx` handles both images and videos — it auto-detects the type from the file extension, autoplays videos muted on loop, and shows a fallback icon when no media is provided or the file is missing.
 
 ## Testing
 

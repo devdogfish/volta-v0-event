@@ -1,18 +1,28 @@
 import {
   Lightbulb,
-  Zap,
-  MousePointerClick,
+  GitBranch,
+  Globe,
   Layers,
   MessageSquare,
   Palette,
   Terminal,
-  GitBranch,
-  Globe,
   Wand2,
   Database,
   KeyRound,
   Bot,
   ScanEye,
+  FileCode,
+  TrendingUp,
+  HardDrive,
+  Microscope,
+  Images,
+  Wallet,
+  Receipt,
+  PiggyBank,
+  Shuffle,
+  QrCode,
+  Timer,
+  Moon,
   type LucideIcon,
 } from "lucide-react"
 
@@ -20,7 +30,7 @@ export interface Tip {
   icon: LucideIcon
   title: string
   description: string
-  /** Optional category tag shown above the title */
+  /** Optional category tag shown above the title. Use "Tip", "Feature", or "App Idea". */
   tag?: string
   /**
    * Path to media displayed for this tip.
@@ -28,7 +38,6 @@ export interface Tip {
    * and videos (.mp4, .webm, .mov, .gif).
    *
    * Videos auto-play muted on loop. If omitted a fallback is shown.
-   * Place files in `public/images/tips/` or `public/videos/tips/`.
    */
   media?: string
   /**
@@ -38,6 +47,8 @@ export interface Tip {
   duration?: number
   /** Optional "Read more" link shown below the description. */
   link?: { label: string; href: string }
+  /** When true, shows an "AI SDK" badge next to the tag — for app ideas that need built-in AI. */
+  aiSdk?: boolean
 }
 
 /** Default display duration (ms) when a tip doesn't specify its own. */
@@ -52,117 +63,191 @@ export const TIPS: Tip[] = [
     icon: Lightbulb,
     title: "Start with a Clear Prompt",
     description:
-      "The more specific your initial prompt, the closer v0 gets on the first try. Mention the stack, layout, and vibe you want.",
+      "The more specific your initial prompt, the closer v0 gets on the first try. Mention the layout, the vibe, and what the app should do.",
     tag: "Tip",
-    // media: "/images/tips/clear-prompt.jpg",
-    // duration: 6000,
-  },
-  {
-    icon: MousePointerClick,
-    title: "Use Design Mode First",
-    description:
-      "Before burning AI credits on style tweaks, jump into Design Mode to adjust colors, fonts, spacing, and copy for free.",
-    tag: "Trick",
-    // media: "/videos/tips/design-mode.mp4",
   },
   {
     icon: Layers,
     title: "Compose with Components",
     description:
-      "Break your UI into small, reusable components. v0 understands component boundaries and generates cleaner code that way.",
+      "Break your UI into small, focused sections. v0 builds cleaner, more reusable code when you think in building blocks rather than one big page.",
     tag: "Tip",
-    // media: "/images/tips/components.png",
+    media: "/images/Compose-with-Components.png",
   },
-  {
-    icon: MessageSquare,
-    title: "Iterate in Conversation",
-    description:
-      'Don\'t try to get everything perfect in one prompt. Treat v0 like a pair-programming partner — say "now add auth" or "make it responsive".',
-    tag: "Trick",
-    // media: "/videos/tips/iterate.mov",
-  },
-  {
-    icon: Zap,
-    title: "Leverage Integrations",
-    description:
-      "Connect Supabase, Neon, or Vercel Blob directly from the sidebar. v0 will wire up the SDK, env vars, and types automatically.",
-    tag: "Feature",
-    // media: "/images/tips/integrations.gif",
-  },
+ 
   {
     icon: Palette,
-    title: "Reference a Design System",
+    title: "Reference a Design You Love",
     description:
-      "Paste a screenshot or mention shadcn/ui, Tailwind, or a specific color palette. v0 will match the aesthetic closely.",
-    tag: "Inspiration",
+      "Paste a screenshot of a design you like, or mention a style like shadcn/ui or a specific color palette. v0 will match the look and feel closely.",
+    tag: "Tip",
     media: "/images/design-system.png",
   },
-  {
-    icon: Terminal,
-    title: "Ask v0 to Explain Code",
-    description:
-      'Not sure what a piece of generated code does? Ask "explain the auth middleware" and v0 will walk you through it.',
-    tag: "Tip",
-    // media: "/images/tips/explain.webp",
-  },
+  
   {
     icon: GitBranch,
-    title: "Version Everything",
+    title: "Experiment Without Fear",
     description:
-      "Every generation is auto-versioned. Experiment boldly — you can always roll back to any previous version in one click.",
-    tag: "Feature",
-    // media: "/videos/tips/versioning.mp4",
+      "Every change is automatically saved as a version. Try bold ideas freely — if something breaks, you can roll back to any previous state in one click.",
+    tag: "Tip",
+    media: "/media/version-control.mp4",
   },
   {
     icon: Globe,
-    title: "Deploy in One Click",
+    title: "Share Your App Instantly",
     description:
-      "Hit Publish to get a live Vercel URL instantly. Share it, test it on mobile, or hand it off to your team.",
+      "Hit Publish to get a live link you can share right away. Test it on your phone, send it to a friend, or show it off — no setup required.",
     tag: "Feature",
-    // media: "/images/tips/deploy.jpg",
+    media: "/media/publish-to-vercel.mp4",
   },
   {
     icon: Wand2,
-    title: "Combine AI with Manual Edits",
+    title: "Mix AI and Manual Edits",
     description:
-      "You can edit code directly, then ask v0 to continue from your changes. It respects your manual edits and builds on top of them.",
-    tag: "Inspiration",
-    // media: "/videos/tips/manual-edits.webm",
+      "You can edit the code directly at any point, then hand it back to v0 to keep building. It picks up from your changes without overwriting anything.",
+    tag: "Tip",
   },
   {
     icon: Database,
-    title: "Connect a Real Database",
+    title: "Let Your App Store Data",
     description:
-      "Use v0's native database integrations to spin up Supabase, Neon, or Vercel Postgres in seconds. v0 generates the schema, runs migrations, and wires the client — you just describe the data model.",
-    tag: "Integration",
+      "Want your app to remember users, save posts, or track orders? Connect a database in a few clicks and v0 sets up the structure and wiring for you — no database experience needed.",
+    tag: "Feature",
     media: "/media/separate/database.mp4",
     duration: 12000,
   },
   {
     icon: KeyRound,
-    title: "Manage Env Variables Safely",
+    title: "Connect External Services Without Exposing Secrets",
     description:
-      "v0 detects secrets like API keys and database URLs and prompts you to store them as environment variables — never hard-coded. Add or update them from the project settings without touching your code.",
-    tag: "Best Practice",
+      "Adding payments, emails, or maps means dealing with secret API keys. v0 automatically keeps those hidden and secure — so you can integrate any service without the risk of leaking credentials.",
+    tag: "Tip",
     media: "/media/separate/env-variables.mp4",
     duration: 10000,
   },
   {
     icon: Bot,
-    title: "Add AI with the Vercel AI SDK",
+    title: "Add a Chatbot or AI Feature to Your App",
     description:
-      "Drop in streaming chat, text generation, or structured output by asking v0 to use the Vercel AI SDK. It scaffolds the route, the React hooks, and the UI — so you ship AI features in minutes, not days.",
+      "Want smart search, a chat assistant, or auto-generated content? Ask v0 to add AI and it builds the interface, the backend logic, and the connection to models like Claude or GPT — all from one prompt.",
     tag: "Feature",
+    aiSdk: true,
     media: "/media/separate/vercel-ai-sdk.mp4",
     duration: 12000,
+    link: { label: "Explore the AI SDK docs →", href: "https://ai-sdk.dev/docs/introduction" },
   },
   {
     icon: ScanEye,
-    title: "Clone Any UI from a Screenshot",
+    title: "Turn Any Screenshot into a Working App",
     description:
-      "Paste a screenshot of any interface and v0 will reverse-engineer it into clean, production-ready code. No manual pixel-pushing — just describe any tweaks you want on top.",
-    tag: "Visual AI",
+      "See a design you love? Paste a screenshot and v0 will recreate it as a real, working interface. Then just describe what you want to change or add on top.",
+    tag: "Tip",
     media: "/media/separate/image-to-website.mp4",
     duration: 12000,
+  },
+  
+  {
+    icon: TrendingUp,
+    title: "The LLM Vibes Radar",
+    description:
+      "Periodically ask AIs for opinions and rankings (\"what's the best burger in SF?\", \"who is the best candidate?\", etc). Data visualization could look Google Trends-y. Use ISR for snappy and efficient rendering. This tool can help the world become aware of biases in AIs, be the \"Wirecutter for everything\", entertain, and inform businesses on how they're falling in or out of favor.",
+    tag: "App Idea",
+    aiSdk: true,
+    media: "/images/llm-trends-radar.png",
+    duration: 14000,
+  },
+  {
+    icon: HardDrive,
+    title: "Cloud to SQLite",
+    description:
+      "A glorious program dropped the other day on HN: Gmail to SQLite. I'm the most cloud & managed services pilled person in the world, but having near-realtime backups of any dataset of any SaaS sounds dreamy. This has value for individuals looking to explore data with LLMs and SQL, back up their data, gain portability, but also Enterprises and companies looking to build custom agents on top of their otherwise locked-up data.",
+    tag: "App Idea",
+    media: "/images/Cloud-to-SQLite.png",
+    duration: 14000,
+    link: { label: "Gmail to SQLite on HN →", href: "https://news.ycombinator.com/item?id=43943236" },
+  },
+  {
+    icon: Microscope,
+    title: "Deepest Research",
+    description:
+      "I notice that when I really need to study a topic in depth, I don't want to bank on the viewpoint of a single LLM. Many times I fire up ChatGPT, Grok, and Perplexity in a bunch of tabs. I would love a tool that uses all the available intelligence on the internet to produce the best possible report. Key: tell me how the \"experts\" aka AIs differed, especially if they have contradicting facts, figures, or conclusions.",
+    tag: "App Idea",
+    aiSdk: true,
+    media: "/images/Deepest-Research.png",
+    duration: 14000,
+  },
+  {
+    icon: Images,
+    title: "Modern Google Images",
+    description:
+      "Google has surprisingly not updated this crucial tool in a decade. I'd start by removing all the traps that make it hard to get to the actual image, remove duplicates, offer built-in AI tools like hyper-resolution / magnification, clearing imperfections, etc. Consider how hard it is to find a clean meme template or make a meme, which must be a huge cluster of queries! I'd specialize and enhance the results for relevant clusters like searching for logos, svgs, memes, and combine the internet's index with generative ones.",
+    tag: "App Idea",
+    aiSdk: true,
+    media: "/images/modern-google-images.png",
+    duration: 14000,
+  },
+  {
+    icon: Wallet,
+    title: "Expense Tracker with QR Scanning",
+    description:
+      "Scan the QR code on any receipt and watch the details fill in automatically — store, amount, date, line items. Add your own categories, set monthly budgets, and finally see a clear picture of where your money is actually going.",
+    tag: "App Idea",
+    aiSdk: true,
+    media: "/images/expense-tracker-with-QR-scanning.png",
+    duration: 10000,
+  },
+  {
+    icon: Receipt,
+    title: "Split the Bill",
+    description:
+      "Enter the total, number of people, and tip — everyone instantly sees what they owe. No more back-and-forth math at the end of a dinner.",
+    tag: "App Idea",
+    media: "/images/split-the-bill.png",
+    duration: 8000,
+  },
+  {
+    icon: PiggyBank,
+    title: "How Long Until I Can Afford It?",
+    description:
+      "Enter a price and how much you save per month. See exactly how many weeks or months stand between you and that purchase. Weirdly motivating.",
+    tag: "App Idea",
+    media: "/images/how-long-until-i-can-afford.png",
+    duration: 8000,
+  },
+  {
+    icon: Shuffle,
+    title: "Random Decision Maker",
+    description:
+      "Can't decide where to eat, what to watch, or which option to pick? Enter your choices, spin the wheel, and commit to the result.",
+    tag: "App Idea",
+    media: "/images/Random-Decision-Maker.png",
+    duration: 8000,
+  },
+  {
+    icon: QrCode,
+    title: "QR Code Generator",
+    description:
+      "Yes, there are a thousand of these — but building your own clone in an afternoon is a great v0 exercise. Paste a URL or any text, get a scannable code instantly. Download and done.",
+    tag: "App Idea",
+    media: "/images/qr-code-tracker.png",
+    duration: 8000,
+  },
+  {
+    icon: Timer,
+    title: "Reaction Time, Visualized",
+    description:
+      "Ten rounds of click-when-it-turns-green. Your results are plotted live as a dot chart — see your average, your best, and where you land compared to typical human reaction time (~200–250ms). Simple, shareable, and quietly competitive.",
+    tag: "App Idea",
+    media: "/images/reaction-time-test.png",
+    duration: 10000,
+  },
+  {
+    icon: Moon,
+    title: "Sleep Debt Tracker",
+    description:
+      "Log your sleep each night against a personal target. The app tracks your running deficit or surplus and tells you how many good nights it would take to recover. Most people have no idea how deep in the hole they are — a chart makes it real.",
+    tag: "App Idea",
+    media: "/images/sleep-dept-tracker.png",
+    duration: 10000,
   },
 ]

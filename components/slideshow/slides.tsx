@@ -31,10 +31,13 @@ function MediaDisplay({
   src,
   alt,
   isActive = true,
+  intrinsic = false,
 }: {
   src?: string
   alt: string
   isActive?: boolean
+  /** When true, render at the image's natural aspect ratio instead of filling the container */
+  intrinsic?: boolean
 }) {
   const [errored, setErrored] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -78,6 +81,18 @@ function MediaDisplay({
         autoPlay={isActive}
         onError={() => setErrored(true)}
         className="h-full w-full object-contain"
+      />
+    )
+  }
+
+  if (intrinsic) {
+    /* eslint-disable-next-line @next/next/no-img-element */
+    return (
+      <img
+        src={src}
+        alt={alt}
+        onError={() => setErrored(true)}
+        className="block max-h-[40vh] max-w-full"
       />
     )
   }
@@ -400,7 +415,7 @@ export function FeaturesSlide() {
 /*  Slide 4 — Tips, Tricks & Inspiration (infinite carousel)          */
 /* ================================================================== */
 
-const TRANSITION_DURATION = 800 // ms — matches the CSS animation length
+const TRANSITION_DURATION = 1200 // ms — matches the CSS animation length
 
 /**
  * Builds one round of tip indices with category-aware shuffling.
@@ -567,18 +582,46 @@ export function TipsSlide() {
   }, [goNext, goPrev, resetTimer])
 
   // Render a single tip
-  const renderTip = (tip: (typeof TIPS)[number], active: boolean) => (
+  const renderTip = (tip: (typeof TIPS)[number], active: boolean, tipIndex: number) => {
+    // Determine animation class for App Idea badges — always applied so
+    // the animation keeps running through the fade-out transition
+    const APP_IDEA_ANIMATIONS = ["app-idea-bulb", "app-idea-stamp", "app-idea-sparkle"] as const
+    const isAppIdea = tip.tag === "App Idea"
+    const appIdeaClass = isAppIdea ? APP_IDEA_ANIMATIONS[tipIndex % 3] : ""
+
+    return (
     <>
       {/* Media */}
-      <div className="relative aspect-video w-full max-w-lg overflow-hidden rounded-lg border border-border bg-secondary/30">
-        <MediaDisplay src={tip.media} alt={tip.title} isActive={active} />
-      </div>
+      {tip.media && (
+        <div className="overflow-hidden rounded-lg border border-border">
+          <MediaDisplay src={tip.media} alt={tip.title} isActive={active} intrinsic />
+        </div>
+      )}
 
       {/* Tag */}
-      {tip.tag && (
-        <span className="rounded-full border border-border px-3 py-0.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          {tip.tag}
-        </span>
+      {(tip.tag || tip.aiSdk) && (
+        <div className="flex items-center gap-2">
+          {tip.tag && (
+            <span className={`rounded-full border px-3 py-0.5 font-mono text-[10px] uppercase tracking-widest ${
+              isAppIdea
+                ? appIdeaClass
+                : "border-border text-muted-foreground"
+            }`}>
+              {tip.tag}
+              {/* Firefly particle dots — 8 fast + 8 slow */}
+              {isAppIdea && appIdeaClass === "app-idea-sparkle" &&
+                Array.from({ length: 16 }, (_, i) => (
+                  <span key={i} className="firefly-dot" />
+                ))
+              }
+            </span>
+          )}
+          {tip.aiSdk && (
+            <span className="rounded-full border border-blue-500/40 bg-blue-500/10 px-3 py-0.5 font-mono text-[10px] uppercase tracking-widest text-blue-400">
+              AI SDK
+            </span>
+          )}
+        </div>
       )}
 
       {/* Title & description */}
@@ -601,7 +644,8 @@ export function TipsSlide() {
         </a>
       )}
     </>
-  )
+    )
+  }
 
   return (
     <div
@@ -611,30 +655,30 @@ export function TipsSlide() {
       aria-label="Tips and Tricks"
       aria-roledescription="carousel"
     >
-      {/* Centered content */}
-      <div className="relative w-full max-w-2xl px-6">
+      {/* Centered content — both layers are absolute so they never cause layout shifts */}
+      <div className="relative h-full w-full max-w-2xl px-6">
         {/* Exiting tip */}
         {prevIndex !== null && (
           <div
             key={`exit-${prevIndex}`}
-            className="absolute inset-0 flex flex-col items-center gap-6 px-6 text-center animate-tip-exit"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-6 text-center animate-tip-exit"
             aria-hidden="true"
           >
-            {renderTip(TIPS[prevIndex], false)}
+            {renderTip(TIPS[prevIndex], false, prevIndex)}
           </div>
         )}
 
         {/* Active tip */}
         <div
           key={`enter-${activeIndex}`}
-          className={`flex flex-col items-center gap-6 text-center ${
+          className={`absolute inset-0 flex flex-col items-center justify-center gap-6 px-6 text-center ${
             prevIndex !== null ? "animate-tip-enter" : ""
           }`}
           role="group"
           aria-roledescription="slide"
           aria-label={`${activeIndex + 1} of ${count}`}
         >
-          {renderTip(TIPS[activeIndex], true)}
+          {renderTip(TIPS[activeIndex], true, activeIndex)}
         </div>
       </div>
 
