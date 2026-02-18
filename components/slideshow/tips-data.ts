@@ -185,9 +185,9 @@ export const TIPS: Tip[] = [
 
   {
     icon: Wallet,
-    title: "Expense Tracker with QR Scanning",
+    title: "Expense Tracker with Receipt Scanning",
     description:
-      "Scan the QR code on any receipt and watch the details fill in automatically — store, amount, date, line items. Add your own categories, set monthly budgets, and finally see a clear picture of where your money is actually going.",
+      "Snap a photo of any receipt and a visual LLM parses out the store, amount, date, and line items automatically. Add your own categories, set monthly budgets, and finally see a clear picture of where your money is actually going.",
     tag: "App Idea",
     aiSdk: true,
     media: "/images/expense-tracker-with-QR-scanning.png",
