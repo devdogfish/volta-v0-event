@@ -1,0 +1,571 @@
+"use client"
+
+import { useState, useCallback, useRef, useEffect } from "react"
+import Image from "next/image"
+import {
+  Sparkles,
+  Paintbrush,
+  Database,
+  RotateCcw,
+  Rocket,
+  ImageOff,
+} from "lucide-react"
+import { TIPS, DEFAULT_TIP_DURATION } from "./tips-data"
+
+/* ================================================================== */
+/*  Shared: detect whether a path is a video or image                 */
+/* ================================================================== */
+
+const VIDEO_EXTENSIONS = /\.(mp4|webm|mov)$/i
+
+function isVideo(src: string): boolean {
+  return VIDEO_EXTENSIONS.test(src)
+}
+
+/* ================================================================== */
+/*  Shared: unified media display (image or video, with fallback)     */
+/* ================================================================== */
+
+function MediaDisplay({
+  src,
+  alt,
+  isActive = true,
+}: {
+  src?: string
+  alt: string
+  isActive?: boolean
+}) {
+  const [errored, setErrored] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // Reset error state when src changes
+  useEffect(() => {
+    setErrored(false)
+  }, [src])
+
+  // Play / pause video based on active state
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (isActive) {
+      video.currentTime = 0
+      video.play().catch(() => {})
+    } else {
+      video.pause()
+    }
+  }, [isActive, src])
+
+  if (!src || errored) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2">
+        <ImageOff className="h-6 w-6 text-muted-foreground/30" />
+        <p className="font-mono text-[10px] text-muted-foreground/40">
+          {errored ? "Media not found" : "No media available"}
+        </p>
+      </div>
+    )
+  }
+
+  if (isVideo(src)) {
+    return (
+      <video
+        ref={videoRef}
+        src={src}
+        muted
+        playsInline
+        loop
+        autoPlay={isActive}
+        onError={() => setErrored(true)}
+        className="h-full w-full object-cover"
+      />
+    )
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      unoptimized={/\.gif$/i.test(src)}
+      onError={() => setErrored(true)}
+    />
+  )
+}
+
+/* ================================================================== */
+/*  Slide 1 — Cover                                                   */
+/* ================================================================== */
+
+export function CoverSlide() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 100)
+    return () => clearTimeout(t)
+  }, [])
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-6">
+      <div
+        className={`transition-all duration-1000 ease-out ${
+          mounted ? "scale-100 opacity-100" : "scale-90 opacity-0"
+        }`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/v0-logo.jpeg"
+          alt="v0 logo"
+          width={120}
+          height={120}
+          className="rounded-2xl"
+          fetchPriority="high"
+          decoding="sync"
+        />
+      </div>
+      <div
+        className={`flex flex-col items-center gap-3 transition-all delay-300 duration-1000 ease-out ${
+          mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+        }`}
+      >
+        <h1 className="text-balance text-center font-sans text-5xl font-bold tracking-tight text-foreground md:text-7xl">
+          Vibe Coding Meetup
+        </h1>
+        <p className="max-w-md text-balance text-center font-mono text-sm text-muted-foreground md:text-base">
+          Build real apps with AI. Ship instantly.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/* ================================================================== */
+/*  Slide 2 — Presenter Introduction                                  */
+/* ================================================================== */
+
+/**
+ * Edit these constants to customise the presenter slide.
+ * Set PRESENTER.photo to a path like "/images/presenter.jpg" or leave
+ * undefined for a placeholder initial avatar.
+ */
+const PRESENTER = {
+  name: "Your Name",
+  role: "Software Engineer & AI Enthusiast",
+  photo: undefined as string | undefined, // e.g. "/images/presenter.jpg"
+  bio: "Passionate about building products at the intersection of design and engineering. I spend my days exploring how AI tools like v0 can supercharge the way we ship software.",
+  links: [
+    { label: "GitHub", href: "https://github.com" },
+    { label: "Twitter / X", href: "https://x.com" },
+  ],
+}
+
+export function PresenterSlide() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 100)
+    return () => clearTimeout(t)
+  }, [])
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-8">
+      {/* Avatar */}
+      <div
+        className={`transition-all duration-700 ease-out ${
+          mounted ? "scale-100 opacity-100" : "scale-90 opacity-0"
+        }`}
+      >
+        {PRESENTER.photo ? (
+          <div className="relative h-28 w-28 overflow-hidden rounded-full border-2 border-border">
+            <Image
+              src={PRESENTER.photo}
+              alt={PRESENTER.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-border bg-secondary">
+            <span className="font-sans text-4xl font-bold text-foreground">
+              {PRESENTER.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Text block */}
+      <div
+        className={`flex max-w-md flex-col items-center gap-3 text-center transition-all delay-200 duration-700 ease-out ${
+          mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+        }`}
+      >
+        <h2 className="font-sans text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          {PRESENTER.name}
+        </h2>
+        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          {PRESENTER.role}
+        </p>
+        <p className="mt-2 text-balance font-sans text-sm leading-relaxed text-muted-foreground">
+          {PRESENTER.bio}
+        </p>
+      </div>
+
+      {/* Links */}
+      {PRESENTER.links.length > 0 && (
+        <div
+          className={`flex gap-4 transition-all delay-400 duration-700 ease-out ${
+            mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+          }`}
+        >
+          {PRESENTER.links.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-md border border-border px-4 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ================================================================== */
+/*  Slide 3 — Top 5 Features                                         */
+/* ================================================================== */
+
+/**
+ * Feature list for Slide 3.
+ *
+ * Set `media` to any image or video path. The component auto-detects
+ * the type from the extension and renders accordingly. Videos autoplay
+ * muted on loop. If omitted, a fallback is shown.
+ */
+const BULLET_POINTS = [
+  {
+    icon: Sparkles,
+    title: "Kickstart Your Project",
+    description:
+      "Starter templates and AI prompt enhancement turn a vague idea into a detailed, buildable spec in seconds.",
+    media: "/media/browse-templates.jpg",
+  },
+  {
+    icon: Paintbrush,
+    title: "Polish the UI for Free",
+    description:
+      "Design mode lets you tweak styles and copy on any element live — without burning a single AI credit.",
+    media: "/media/design-mode.jpg",
+  },
+  {
+    icon: Database,
+    title: "Add Real Backend Power",
+    description:
+      "Natively connect databases, sync to GitHub, and brainstorm implementation details with the AI — all without leaving v0.",
+    media: undefined as string | undefined,
+  },
+  {
+    icon: RotateCcw,
+    title: "Experiment Without Fear",
+    description:
+      "Every change is auto-versioned with instant rollback, so you can try bold ideas and revert in one click.",
+    media: "/media/version-control.jpg",
+  },
+  {
+    icon: Rocket,
+    title: "Ship Instantly",
+    description:
+      "One-click deploy gives you a live production URL, and export options let you download the code or push to GitHub when you're ready to move on.",
+    media: "/media/publish-to-vercel.jpg",
+  },
+]
+
+export function FeaturesSlide() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const bulletRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (
+        e.key === "ArrowDown" ||
+        e.key === "ArrowRight" ||
+        e.key === "ArrowUp" ||
+        e.key === "ArrowLeft"
+      ) {
+        e.preventDefault()
+        const isForward = e.key === "ArrowDown" || e.key === "ArrowRight"
+
+        if (isForward) {
+          if (activeIndex < BULLET_POINTS.length - 1) {
+            setActiveIndex((prev) => prev + 1)
+          } else {
+            window.dispatchEvent(new CustomEvent("slideshow:next"))
+          }
+        } else {
+          if (activeIndex > 0) {
+            setActiveIndex((prev) => prev - 1)
+          } else {
+            window.dispatchEvent(new CustomEvent("slideshow:prev"))
+          }
+        }
+      }
+    },
+    [activeIndex]
+  )
+
+  useEffect(() => {
+    bulletRefs.current[activeIndex]?.focus()
+  }, [activeIndex])
+
+  return (
+    <div
+      ref={containerRef}
+      className="flex h-full flex-col gap-6 p-4 md:flex-row md:gap-0 md:p-0"
+      role="region"
+      aria-label="v0 Features"
+    >
+      {/* Bullet Points - Left Side */}
+      <div className="flex flex-col justify-center md:w-1/2 md:pr-8">
+        <h2 className="mb-6 font-sans text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          What you can do with v0
+        </h2>
+        <div
+          role="listbox"
+          aria-label="Feature list"
+          aria-activedescendant={`feature-${activeIndex}`}
+          className="flex flex-col gap-1"
+        >
+          {BULLET_POINTS.map((point, i) => {
+            const Icon = point.icon
+            const isActive = i === activeIndex
+            return (
+              <button
+                key={i}
+                id={`feature-${i}`}
+                ref={(el) => {
+                  bulletRefs.current[i] = el
+                }}
+                role="option"
+                aria-selected={isActive}
+                onClick={() => setActiveIndex(i)}
+                onKeyDown={handleKeyDown}
+                className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                  isActive
+                    ? "bg-secondary/80"
+                    : "bg-transparent hover:bg-secondary/40"
+                }`}
+              >
+                <div
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded transition-colors duration-300 ${
+                    isActive
+                      ? "bg-foreground text-background"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                </div>
+                <p
+                  className={`flex-1 font-sans text-sm font-semibold transition-colors duration-300 ${
+                    isActive ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {point.title}
+                </p>
+                <div
+                  className={`h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-300 ${
+                    isActive ? "bg-foreground" : "bg-transparent"
+                  }`}
+                />
+              </button>
+            )
+          })}
+        </div>
+        <div className="mt-4 h-12 px-3">
+          <p className="font-sans text-xs leading-relaxed text-muted-foreground transition-opacity duration-300">
+            {BULLET_POINTS[activeIndex].description}
+          </p>
+        </div>
+      </div>
+
+      {/* Media - Right Side */}
+      <div className="flex items-center justify-center md:w-1/2">
+        <div className="relative h-full w-full overflow-hidden rounded-lg border border-border bg-card">
+          {BULLET_POINTS.map((point, i) => {
+            const isActive = i === activeIndex
+            return (
+              <div
+                key={i}
+                className={`absolute inset-0 transition-opacity duration-500 ease-out ${
+                  isActive ? "z-10 opacity-100" : "z-0 opacity-0"
+                }`}
+                aria-hidden={!isActive}
+              >
+                <MediaDisplay
+                  src={point.media}
+                  alt={point.title}
+                  isActive={isActive}
+                />
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ================================================================== */
+/*  Slide 4 — Tips, Tricks & Inspiration (infinite carousel)          */
+/* ================================================================== */
+
+const TRANSITION_DURATION = 800 // ms — matches the CSS animation length
+
+export function TipsSlide() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [prevIndex, setPrevIndex] = useState<number | null>(null)
+  const isTransitioning = useRef(false)
+  const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const count = TIPS.length
+
+  const goTo = useCallback(
+    (next: number) => {
+      if (isTransitioning.current) return
+      isTransitioning.current = true
+      const wrapped = ((next % count) + count) % count
+      setPrevIndex(activeIndex)
+      setActiveIndex(wrapped)
+      setTimeout(() => {
+        setPrevIndex(null)
+        isTransitioning.current = false
+      }, TRANSITION_DURATION)
+    },
+    [activeIndex, count]
+  )
+
+  const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo])
+  const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo])
+
+  // Schedule auto-advance using the current tip's duration
+  const scheduleNext = useCallback(() => {
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current)
+    const ms = TIPS[activeIndex]?.duration ?? DEFAULT_TIP_DURATION
+    autoTimerRef.current = setTimeout(goNext, ms)
+  }, [activeIndex, goNext])
+
+  useEffect(() => {
+    scheduleNext()
+    return () => {
+      if (autoTimerRef.current) clearTimeout(autoTimerRef.current)
+    }
+  }, [scheduleNext])
+
+  const resetTimer = useCallback(() => {
+    scheduleNext()
+  }, [scheduleNext])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (!containerRef.current?.closest('[data-slide-active="true"]')) return
+
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault()
+        e.stopPropagation()
+        goNext()
+        resetTimer()
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault()
+        e.stopPropagation()
+        goPrev()
+        resetTimer()
+      } else if (e.key === "Escape") {
+        e.preventDefault()
+        window.dispatchEvent(new CustomEvent("slideshow:prev"))
+      }
+    }
+
+    window.addEventListener("keydown", handleKey, true)
+    return () => window.removeEventListener("keydown", handleKey, true)
+  }, [goNext, goPrev, resetTimer])
+
+  // Render a single tip
+  const renderTip = (tip: (typeof TIPS)[number], active: boolean) => (
+    <>
+      {/* Media */}
+      <div className="relative aspect-video w-full max-w-lg overflow-hidden rounded-lg border border-border bg-secondary/30">
+        <MediaDisplay src={tip.media} alt={tip.title} isActive={active} />
+      </div>
+
+      {/* Tag */}
+      {tip.tag && (
+        <span className="rounded-full border border-border px-3 py-0.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          {tip.tag}
+        </span>
+      )}
+
+      {/* Title & description */}
+      <h3 className="text-balance font-sans text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+        {tip.title}
+      </h3>
+      <p className="max-w-lg text-balance font-sans text-sm leading-relaxed text-muted-foreground">
+        {tip.description}
+      </p>
+    </>
+  )
+
+  return (
+    <div
+      ref={containerRef}
+      className="flex h-full flex-col"
+      role="region"
+      aria-label="Tips and Tricks"
+      aria-roledescription="carousel"
+    >
+      {/* Centered content */}
+      <div className="flex flex-1 items-center justify-center">
+        <div className="relative w-full max-w-2xl px-6">
+          {/* Exiting tip */}
+          {prevIndex !== null && (
+            <div
+              key={`exit-${prevIndex}`}
+              className="absolute inset-0 flex flex-col items-center gap-6 px-6 text-center animate-tip-exit"
+              aria-hidden="true"
+            >
+              {renderTip(TIPS[prevIndex], false)}
+            </div>
+          )}
+
+          {/* Active tip */}
+          <div
+            key={`enter-${activeIndex}`}
+            className={`flex flex-col items-center gap-6 text-center ${
+              prevIndex !== null ? "animate-tip-enter" : ""
+            }`}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${activeIndex + 1} of ${count}`}
+          >
+            {renderTip(TIPS[activeIndex], true)}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="flex shrink-0 items-center justify-center pb-6">
+        <p className="font-mono text-[10px] text-muted-foreground/40">
+          {"Press ESC to go back"}
+        </p>
+      </div>
+    </div>
+  )
+}
