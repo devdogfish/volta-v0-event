@@ -32,12 +32,15 @@ function MediaDisplay({
   alt,
   isActive = true,
   intrinsic = false,
+  onLoadedDuration,
 }: {
   src?: string
   alt: string
   isActive?: boolean
   /** When true, render at the image's natural aspect ratio instead of filling the container */
   intrinsic?: boolean
+  /** Called with the video duration in ms once metadata is loaded */
+  onLoadedDuration?: (durationMs: number) => void
 }) {
   const [errored, setErrored] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -80,6 +83,11 @@ function MediaDisplay({
         loop
         autoPlay={isActive}
         onError={() => setErrored(true)}
+        onLoadedMetadata={() => {
+          if (videoRef.current && onLoadedDuration) {
+            onLoadedDuration(videoRef.current.duration * 1000)
+          }
+        }}
         className="h-full w-full object-contain"
       />
     )
@@ -416,6 +424,7 @@ export function FeaturesSlide() {
 /* ================================================================== */
 
 const TRANSITION_DURATION = 1200 // ms — matches the CSS animation length
+const FADE_LEAD_MS = 800 // start fade-out this many ms before a video ends
 
 /**
  * Builds one round of tip indices with category-aware shuffling.
@@ -493,6 +502,7 @@ export function TipsSlide() {
   const isTransitioning = useRef(false)
   const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const videoDurationRef = useRef<number | null>(null)
 
   const count = TIPS.length
 
@@ -541,9 +551,26 @@ export function TipsSlide() {
   // Schedule auto-advance using the current tip's duration
   const scheduleNext = useCallback(() => {
     if (autoTimerRef.current) clearTimeout(autoTimerRef.current)
+    videoDurationRef.current = null // reset; will be set when video metadata loads
     const ms = TIPS[activeIndex]?.duration ?? DEFAULT_TIP_DURATION
     autoTimerRef.current = setTimeout(goNext, ms)
   }, [activeIndex, goNext])
+
+  // When a video's metadata loads, reschedule if the video is longer than the
+  // configured duration so the full video plays before advancing. The fade-out
+  // starts FADE_LEAD_MS before the video ends to avoid seeing the loop restart.
+  const handleVideoDuration = useCallback(
+    (durationMs: number) => {
+      videoDurationRef.current = durationMs
+      const configuredMs = TIPS[activeIndex]?.duration ?? DEFAULT_TIP_DURATION
+      const videoBasedMs = durationMs - FADE_LEAD_MS
+      if (videoBasedMs > configuredMs) {
+        if (autoTimerRef.current) clearTimeout(autoTimerRef.current)
+        autoTimerRef.current = setTimeout(goNext, videoBasedMs)
+      }
+    },
+    [activeIndex, goNext]
+  )
 
   useEffect(() => {
     scheduleNext()
@@ -582,7 +609,7 @@ export function TipsSlide() {
   }, [goNext, goPrev, resetTimer])
 
   // Render a single tip
-  const renderTip = (tip: (typeof TIPS)[number], active: boolean, tipIndex: number) => {
+  const renderTip = (tip: (typeof TIPS)[number], active: boolean, tipIndex: number, onDuration?: (ms: number) => void) => {
     // Determine animation class for App Idea badges — always applied so
     // the animation keeps running through the fade-out transition
     const APP_IDEA_ANIMATIONS = ["app-idea-bulb", "app-idea-stamp", "app-idea-sparkle"] as const
@@ -594,7 +621,7 @@ export function TipsSlide() {
       {/* Media */}
       {tip.media && (
         <div className="overflow-hidden rounded-lg border border-border">
-          <MediaDisplay src={tip.media} alt={tip.title} isActive={active} intrinsic />
+          <MediaDisplay src={tip.media} alt={tip.title} isActive={active} intrinsic onLoadedDuration={active ? onDuration : undefined} />
         </div>
       )}
 
@@ -647,6 +674,10 @@ export function TipsSlide() {
     )
   }
 
+  // Track which tip indices need to be rendered (active + exiting keeps DOM alive)
+  const visibleSet = new Set<number>([activeIndex])
+  if (prevIndex !== null) visibleSet.add(prevIndex)
+
   return (
     <div
       ref={containerRef}
@@ -655,31 +686,30 @@ export function TipsSlide() {
       aria-label="Tips and Tricks"
       aria-roledescription="carousel"
     >
-      {/* Centered content — both layers are absolute so they never cause layout shifts */}
+      {/* Centered content — persistent layers so animations are never interrupted */}
       <div className="relative h-full w-full max-w-2xl px-6">
-        {/* Exiting tip */}
-        {prevIndex !== null && (
-          <div
-            key={`exit-${prevIndex}`}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-6 text-center animate-tip-exit"
-            aria-hidden="true"
-          >
-            {renderTip(TIPS[prevIndex], false, prevIndex)}
-          </div>
-        )}
+        {TIPS.map((tip, i) => {
+          if (!visibleSet.has(i)) return null
 
-        {/* Active tip */}
-        <div
-          key={`enter-${activeIndex}`}
-          className={`absolute inset-0 flex flex-col items-center justify-center gap-6 px-6 text-center ${
-            prevIndex !== null ? "animate-tip-enter" : ""
-          }`}
-          role="group"
-          aria-roledescription="slide"
-          aria-label={`${activeIndex + 1} of ${count}`}
-        >
-          {renderTip(TIPS[activeIndex], true, activeIndex)}
-        </div>
+          const isActive = i === activeIndex
+          const isExiting = i === prevIndex
+          let animClass = ""
+          if (isExiting) animClass = "animate-tip-exit"
+          else if (isActive && prevIndex !== null) animClass = "animate-tip-enter"
+
+          return (
+            <div
+              key={`tip-${i}`}
+              className={`absolute inset-0 flex flex-col items-center justify-center gap-6 px-6 text-center ${animClass}`}
+              aria-hidden={!isActive}
+              role={isActive ? "group" : undefined}
+              aria-roledescription={isActive ? "slide" : undefined}
+              aria-label={isActive ? `${activeIndex + 1} of ${count}` : undefined}
+            >
+              {renderTip(tip, isActive, i, isActive ? handleVideoDuration : undefined)}
+            </div>
+          )
+        })}
       </div>
 
     </div>

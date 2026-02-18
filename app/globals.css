@@ -89,64 +89,100 @@ body {
 
 /* ── App Idea badge animations ── */
 
-/* 1. Flickering Lightbulb — aggressive strobe-like flicker */
-@keyframes bulb-flicker {
-  0%    { box-shadow: 0 0 2px rgba(245, 158, 11, 0.1); opacity: 0.15; }
-  2%    { box-shadow: 0 0 20px rgba(245, 158, 11, 1), 0 0 40px rgba(245, 158, 11, 0.4); opacity: 1; }
-  4%    { box-shadow: none; opacity: 0; }
-  6%    { box-shadow: 0 0 25px rgba(245, 158, 11, 1), 0 0 50px rgba(245, 158, 11, 0.5); opacity: 1; }
-  8%    { box-shadow: 0 0 3px rgba(245, 158, 11, 0.2); opacity: 0.1; }
-  9%    { box-shadow: none; opacity: 0; }
-  11%   { box-shadow: 0 0 15px rgba(245, 158, 11, 0.8); opacity: 0.9; }
-  12%   { box-shadow: none; opacity: 0.05; }
-  14%   { box-shadow: 0 0 30px rgba(245, 158, 11, 1), 0 0 60px rgba(245, 158, 11, 0.3); opacity: 1; }
-  15%   { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); opacity: 0.2; }
-  17%   { box-shadow: 0 0 22px rgba(245, 158, 11, 0.9), 0 0 45px rgba(245, 158, 11, 0.4); opacity: 1; }
-  18%   { box-shadow: none; opacity: 0; }
-  20%   { box-shadow: 0 0 18px rgba(245, 158, 11, 1), 0 0 35px rgba(245, 158, 11, 0.5); opacity: 1; }
-  21%   { box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); opacity: 0.3; }
-  23%   { box-shadow: 0 0 28px rgba(245, 158, 11, 1), 0 0 55px rgba(245, 158, 11, 0.4); opacity: 1; }
-  25%   { box-shadow: 0 0 20px rgba(245, 158, 11, 0.9), 0 0 40px rgba(245, 158, 11, 0.3); opacity: 1; }
-  /* Settle into a pulsing glow */
-  35%   { box-shadow: 0 0 18px rgba(245, 158, 11, 0.8), 0 0 35px rgba(245, 158, 11, 0.25); opacity: 1; }
-  50%   { box-shadow: 0 0 25px rgba(245, 158, 11, 1), 0 0 50px rgba(245, 158, 11, 0.4); opacity: 1; }
-  65%   { box-shadow: 0 0 12px rgba(245, 158, 11, 0.6), 0 0 25px rgba(245, 158, 11, 0.2); opacity: 0.85; }
-  75%   { box-shadow: 0 0 22px rgba(245, 158, 11, 0.9), 0 0 45px rgba(245, 158, 11, 0.35); opacity: 1; }
-  85%   { box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); opacity: 0.7; }
-  92%   { box-shadow: 0 0 20px rgba(245, 158, 11, 0.85), 0 0 40px rgba(245, 158, 11, 0.3); opacity: 1; }
-  100%  { box-shadow: 0 0 2px rgba(245, 158, 11, 0.1); opacity: 0.15; }
+/* 1. Flickering Lightbulb — mostly on, with irregular brief dropouts */
+/* Two keyframe sets at co-prime durations (3.7s + 5.3s) so the combined
+   pattern doesn't visibly repeat for ~19.6 s.
+   Default state = glow ON. Flickers are brief dips/dropouts. */
+
+@keyframes bulb-flicker-a {
+  /* steady glow baseline */
+  0%    { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* brief dip */
+  8%    { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+  9%    { box-shadow: 0 0 6px rgba(255, 235, 0, 0.1); opacity: 0.2; }
+  10%   { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* steady */
+  28%   { box-shadow: 0 0 34px rgba(255, 235, 0, 0.6), 0 0 65px rgba(255, 235, 0, 0.22); opacity: 1; }
+  /* rapid double-stutter */
+  29%   { box-shadow: none; opacity: 0; }
+  29.8% { box-shadow: 0 0 20px rgba(255, 235, 0, 0.3); opacity: 0.6; }
+  30.3% { box-shadow: none; opacity: 0; }
+  31%   { box-shadow: 0 0 32px rgba(255, 235, 0, 0.55), 0 0 62px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* steady */
+  54%   { box-shadow: 0 0 28px rgba(255, 235, 0, 0.5), 0 0 55px rgba(255, 235, 0, 0.18); opacity: 0.95; }
+  /* soft dim then recover */
+  55%   { box-shadow: 0 0 12px rgba(255, 235, 0, 0.18); opacity: 0.4; }
+  57%   { box-shadow: 0 0 32px rgba(255, 235, 0, 0.55), 0 0 62px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* steady to end */
+  78%   { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* quick flicker out and back */
+  79%   { box-shadow: none; opacity: 0.05; }
+  80%   { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+  100%  { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+}
+
+@keyframes bulb-flicker-b {
+  /* steady glow baseline */
+  0%    { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* long steady stretch */
+  18%   { box-shadow: 0 0 32px rgba(255, 235, 0, 0.58), 0 0 62px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* single sharp dropout */
+  19%   { box-shadow: none; opacity: 0; }
+  20%   { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* steady */
+  42%   { box-shadow: 0 0 28px rgba(255, 235, 0, 0.5), 0 0 55px rgba(255, 235, 0, 0.18); opacity: 0.95; }
+  /* triple stutter */
+  43%   { box-shadow: 0 0 8px rgba(255, 235, 0, 0.12); opacity: 0.15; }
+  43.6% { box-shadow: 0 0 22px rgba(255, 235, 0, 0.35); opacity: 0.7; }
+  44%   { box-shadow: none; opacity: 0.05; }
+  44.5% { box-shadow: 0 0 18px rgba(255, 235, 0, 0.28); opacity: 0.55; }
+  45%   { box-shadow: none; opacity: 0; }
+  46%   { box-shadow: 0 0 32px rgba(255, 235, 0, 0.55), 0 0 62px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* steady */
+  70%   { box-shadow: 0 0 34px rgba(255, 235, 0, 0.6), 0 0 65px rgba(255, 235, 0, 0.22); opacity: 1; }
+  /* gentle dim */
+  72%   { box-shadow: 0 0 14px rgba(255, 235, 0, 0.2); opacity: 0.5; }
+  74%   { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
+  /* steady to end */
+  100%  { box-shadow: 0 0 30px rgba(255, 235, 0, 0.55), 0 0 60px rgba(255, 235, 0, 0.2); opacity: 1; }
 }
 
 .app-idea-bulb {
-  border-color: rgba(245, 158, 11, 0.6);
-  background: rgba(245, 158, 11, 0.15);
-  color: rgb(251, 191, 36);
-  animation: bulb-flicker 2.5s linear infinite;
+  border-color: rgba(255, 235, 0, 0.7);
+  background: rgba(255, 235, 0, 0.18);
+  color: rgb(255, 240, 20);
+  animation:
+    bulb-flicker-a 3.7s linear infinite,
+    bulb-flicker-b 5.3s linear infinite;
 }
 
-/* 2. Stamp Effect — invisible for 1s, then falls with extreme acceleration, crashes, wiggles */
+/* 2. Stamp Effect — invisible for 1s, starts huge and far away, accelerates violently into crash */
 @keyframes stamp-fall {
   /* Invisible — waiting for the sub-slide to fully fade in */
-  0%    { transform: scale(3.2) rotate(-14deg); opacity: 0; }
-  62%   { transform: scale(3.2) rotate(-14deg); opacity: 0; }
-  /* Creeping into view — barely moving at first */
-  68%   { transform: scale(3.0) rotate(-13deg); opacity: 0.08; }
-  74%   { transform: scale(2.8) rotate(-11deg); opacity: 0.12; }
-  79%   { transform: scale(2.5) rotate(-9deg);  opacity: 0.18; }
-  83%   { transform: scale(2.1) rotate(-6deg);  opacity: 0.25; }
-  /* Now accelerating hard */
-  86%   { transform: scale(1.7) rotate(-3deg);  opacity: 0.45; }
-  88%   { transform: scale(1.35) rotate(-1deg); opacity: 0.65; }
-  /* Near-instant final drop */
-  89.5% { transform: scale(1.1) rotate(1deg);   opacity: 0.85; }
+  0%    { transform: scale(8) rotate(-18deg); opacity: 0; }
+  60%   { transform: scale(8) rotate(-18deg); opacity: 0; }
+  /* Barely drifting — enormous and ghostly */
+  66%   { transform: scale(7.5) rotate(-17deg); opacity: 0.04; }
+  71%   { transform: scale(6.8) rotate(-15deg); opacity: 0.06; }
+  75%   { transform: scale(5.8) rotate(-13deg); opacity: 0.09; }
+  78%   { transform: scale(4.8) rotate(-10deg); opacity: 0.12; }
+  /* Picking up speed */
+  81%   { transform: scale(3.8) rotate(-7deg);  opacity: 0.18; }
+  83.5% { transform: scale(2.9) rotate(-5deg);  opacity: 0.28; }
+  85.5% { transform: scale(2.2) rotate(-3deg);  opacity: 0.4; }
+  /* Accelerating hard now */
+  87%   { transform: scale(1.7) rotate(-1.5deg); opacity: 0.55; }
+  88.2% { transform: scale(1.35) rotate(-0.5deg); opacity: 0.7; }
+  /* Terminal velocity — near-instant */
+  89%   { transform: scale(1.1) rotate(0.5deg); opacity: 0.88; }
   /* IMPACT — violent squish */
-  90.5% { transform: scale(0.68) rotate(5deg);  opacity: 1; }
+  89.8% { transform: scale(0.62) rotate(6deg);  opacity: 1; }
   /* Bounce recoil */
-  92.5% { transform: scale(1.18) rotate(-3deg);  opacity: 1; }
-  94.5% { transform: scale(0.9) rotate(2deg);    opacity: 1; }
-  96%   { transform: scale(1.08) rotate(-1deg);  opacity: 1; }
-  97.5% { transform: scale(0.96) rotate(0.5deg); opacity: 1; }
-  99%   { transform: scale(1.02) rotate(-0.2deg); opacity: 1; }
+  91.5% { transform: scale(1.2) rotate(-3.5deg);  opacity: 1; }
+  93.5% { transform: scale(0.88) rotate(2.5deg);  opacity: 1; }
+  95%   { transform: scale(1.1) rotate(-1.2deg);  opacity: 1; }
+  96.5% { transform: scale(0.95) rotate(0.6deg);  opacity: 1; }
+  98%   { transform: scale(1.03) rotate(-0.2deg); opacity: 1; }
   100%  { transform: scale(1) rotate(0deg);       opacity: 1; }
 }
 

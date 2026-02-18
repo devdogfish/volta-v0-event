@@ -24,14 +24,14 @@ import {
   Timer,
   Moon,
   type LucideIcon,
-} from "lucide-react"
+} from "lucide-react";
 
 export interface Tip {
-  icon: LucideIcon
-  title: string
-  description: string
+  icon: LucideIcon;
+  title: string;
+  description: string;
   /** Optional category tag shown above the title. Use "Tip", "Feature", or "App Idea". */
-  tag?: string
+  tag?: string;
   /**
    * Path to media displayed for this tip.
    * Supports images (.jpg, .jpeg, .png, .webp, .avif, .svg)
@@ -39,20 +39,20 @@ export interface Tip {
    *
    * Videos auto-play muted on loop. If omitted a fallback is shown.
    */
-  media?: string
+  media?: string;
   /**
    * How long (in ms) this tip stays visible before auto-advancing.
    * Falls back to DEFAULT_TIP_DURATION if not set.
    */
-  duration?: number
+  duration?: number;
   /** Optional "Read more" link shown below the description. */
-  link?: { label: string; href: string }
+  link?: { label: string; href: string };
   /** When true, shows an "AI SDK" badge next to the tag — for app ideas that need built-in AI. */
-  aiSdk?: boolean
+  aiSdk?: boolean;
 }
 
 /** Default display duration (ms) when a tip doesn't specify its own. */
-export const DEFAULT_TIP_DURATION = 5000
+export const DEFAULT_TIP_DURATION = 5000;
 
 /**
  * Add, remove, or reorder items here.
@@ -74,7 +74,7 @@ export const TIPS: Tip[] = [
     tag: "Tip",
     media: "/images/Compose-with-Components.png",
   },
- 
+
   {
     icon: Palette,
     title: "Reference a Design You Love",
@@ -83,7 +83,7 @@ export const TIPS: Tip[] = [
     tag: "Tip",
     media: "/images/design-system.png",
   },
-  
+
   {
     icon: GitBranch,
     title: "Experiment Without Fear",
@@ -134,7 +134,10 @@ export const TIPS: Tip[] = [
     aiSdk: true,
     media: "/media/separate/vercel-ai-sdk.mp4",
     duration: 12000,
-    link: { label: "Explore the AI SDK docs →", href: "https://ai-sdk.dev/docs/introduction" },
+    link: {
+      label: "Explore the AI SDK docs →",
+      href: "https://ai-sdk.dev/docs/introduction",
+    },
   },
   {
     icon: ScanEye,
@@ -145,12 +148,12 @@ export const TIPS: Tip[] = [
     media: "/media/separate/image-to-website.mp4",
     duration: 12000,
   },
-  
+
   {
     icon: TrendingUp,
     title: "The LLM Vibes Radar",
     description:
-      "Periodically ask AIs for opinions and rankings (\"what's the best burger in SF?\", \"who is the best candidate?\", etc). Data visualization could look Google Trends-y. Use ISR for snappy and efficient rendering. This tool can help the world become aware of biases in AIs, be the \"Wirecutter for everything\", entertain, and inform businesses on how they're falling in or out of favor.",
+      'Periodically ask AIs for opinions and rankings ("what\'s the best burger in SF?", "who is the best candidate?", etc). Data visualization could look Google Trends-y. Use ISR for snappy and efficient rendering. This tool can help the world become aware of biases in AIs, be the "Wirecutter for everything", entertain, and inform businesses on how they\'re falling in or out of favor.',
     tag: "App Idea",
     aiSdk: true,
     media: "/images/llm-trends-radar.png",
@@ -164,28 +167,22 @@ export const TIPS: Tip[] = [
     tag: "App Idea",
     media: "/images/Cloud-to-SQLite.png",
     duration: 14000,
-    link: { label: "Gmail to SQLite on HN →", href: "https://news.ycombinator.com/item?id=43943236" },
+    link: {
+      label: "Gmail to SQLite on HN →",
+      href: "https://news.ycombinator.com/item?id=43943236",
+    },
   },
   {
     icon: Microscope,
     title: "Deepest Research",
     description:
-      "I notice that when I really need to study a topic in depth, I don't want to bank on the viewpoint of a single LLM. Many times I fire up ChatGPT, Grok, and Perplexity in a bunch of tabs. I would love a tool that uses all the available intelligence on the internet to produce the best possible report. Key: tell me how the \"experts\" aka AIs differed, especially if they have contradicting facts, figures, or conclusions.",
+      'I notice that when I really need to study a topic in depth, I don\'t want to bank on the viewpoint of a single LLM. Many times I fire up ChatGPT, Grok, and Perplexity in a bunch of tabs. I would love a tool that uses all the available intelligence on the internet to produce the best possible report. Key: tell me how the "experts" aka AIs differed, especially if they have contradicting facts, figures, or conclusions.',
     tag: "App Idea",
     aiSdk: true,
     media: "/images/Deepest-Research.png",
     duration: 14000,
   },
-  {
-    icon: Images,
-    title: "Modern Google Images",
-    description:
-      "Google has surprisingly not updated this crucial tool in a decade. I'd start by removing all the traps that make it hard to get to the actual image, remove duplicates, offer built-in AI tools like hyper-resolution / magnification, clearing imperfections, etc. Consider how hard it is to find a clean meme template or make a meme, which must be a huge cluster of queries! I'd specialize and enhance the results for relevant clusters like searching for logos, svgs, memes, and combine the internet's index with generative ones.",
-    tag: "App Idea",
-    aiSdk: true,
-    media: "/images/modern-google-images.png",
-    duration: 14000,
-  },
+
   {
     icon: Wallet,
     title: "Expense Tracker with QR Scanning",
@@ -250,4 +247,4 @@ export const TIPS: Tip[] = [
     media: "/images/sleep-dept-tracker.png",
     duration: 10000,
   },
-]
+];
