@@ -9,6 +9,10 @@ import {
   GitBranch,
   Globe,
   Wand2,
+  Database,
+  KeyRound,
+  Bot,
+  ScanEye,
   type LucideIcon,
 } from "lucide-react"
 
@@ -122,5 +126,41 @@ export const TIPS: Tip[] = [
       "You can edit code directly, then ask v0 to continue from your changes. It respects your manual edits and builds on top of them.",
     tag: "Inspiration",
     // media: "/videos/tips/manual-edits.webm",
+  },
+  {
+    icon: Database,
+    title: "Connect a Real Database",
+    description:
+      "Use v0's native database integrations to spin up Supabase, Neon, or Vercel Postgres in seconds. v0 generates the schema, runs migrations, and wires the client — you just describe the data model.",
+    tag: "Integration",
+    media: "/media/separate/database.mp4",
+    duration: 12000,
+  },
+  {
+    icon: KeyRound,
+    title: "Manage Env Variables Safely",
+    description:
+      "v0 detects secrets like API keys and database URLs and prompts you to store them as environment variables — never hard-coded. Add or update them from the project settings without touching your code.",
+    tag: "Best Practice",
+    media: "/media/separate/env-variables.mp4",
+    duration: 10000,
+  },
+  {
+    icon: Bot,
+    title: "Add AI with the Vercel AI SDK",
+    description:
+      "Drop in streaming chat, text generation, or structured output by asking v0 to use the Vercel AI SDK. It scaffolds the route, the React hooks, and the UI — so you ship AI features in minutes, not days.",
+    tag: "Feature",
+    media: "/media/separate/vercel-ai-sdk.mp4",
+    duration: 12000,
+  },
+  {
+    icon: ScanEye,
+    title: "Clone Any UI from a Screenshot",
+    description:
+      "Paste a screenshot of any interface and v0 will reverse-engineer it into clean, production-ready code. No manual pixel-pushing — just describe any tweaks you want on top.",
+    tag: "Visual AI",
+    media: "/media/separate/image-to-website.mp4",
+    duration: 12000,
   },
 ]

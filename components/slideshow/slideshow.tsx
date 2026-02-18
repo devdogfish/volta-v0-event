@@ -11,11 +11,35 @@ const SLIDES = [
   { id: "tips", label: "Tips & Tricks", Component: TipsSlide },
 ]
 
+function slideIndexFromHash(): number {
+  const id = window.location.hash.slice(1)
+  const index = SLIDES.findIndex((s) => s.id === id)
+  return index >= 0 ? index : 0
+}
+
 export function Slideshow() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [direction, setDirection] = useState<"left" | "right">("right")
   const [isAnimating, setIsAnimating] = useState(false)
   const slideContainerRef = useRef<HTMLDivElement>(null)
+
+  // Restore slide from URL hash on mount
+  useEffect(() => {
+    setCurrentSlide(slideIndexFromHash())
+  }, [])
+
+  // Sync URL hash when slide changes
+  useEffect(() => {
+    const id = SLIDES[currentSlide]?.id
+    if (id) window.location.hash = id
+  }, [currentSlide])
+
+  // Handle browser back / forward
+  useEffect(() => {
+    const onPopState = () => setCurrentSlide(slideIndexFromHash())
+    window.addEventListener("popstate", onPopState)
+    return () => window.removeEventListener("popstate", onPopState)
+  }, [])
 
   const goToSlide = useCallback(
     (index: number, dir?: "left" | "right") => {
@@ -96,7 +120,7 @@ export function Slideshow() {
 
       {/* Minimal Bottom Bar */}
       <footer className="flex shrink-0 items-center justify-between px-6 py-3">
-{/* eslint-disable-next-line @next/next/no-img-element */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/v0-logo.jpeg"
           alt="v0 logo"
@@ -105,6 +129,13 @@ export function Slideshow() {
           className="rounded-md"
           fetchPriority="high"
         />
+        <span
+          className={`font-mono text-[10px] text-muted-foreground/40 transition-opacity duration-300 ${
+            SLIDES[currentSlide]?.id === "tips" ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          Press ESC to go back
+        </span>
         <span className="font-mono text-xs text-muted-foreground" aria-label={`Slide ${currentSlide + 1} of ${SLIDES.length}`}>
           {currentSlide + 1} / {SLIDES.length}
         </span>

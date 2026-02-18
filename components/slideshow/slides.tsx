@@ -76,7 +76,7 @@ function MediaDisplay({
         loop
         autoPlay={isActive}
         onError={() => setErrored(true)}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain"
       />
     )
   }
@@ -145,13 +145,13 @@ export function CoverSlide() {
 
 /**
  * Edit these constants to customise the presenter slide.
- * Set PRESENTER.photo to a path like "/images/presenter.jpg" or leave
+ * Set PRESENTER.photo to a path like "/images/presenter.gif" or leave
  * undefined for a placeholder initial avatar.
  */
 const PRESENTER = {
   name: "Your Name",
   role: "Software Engineer & AI Enthusiast",
-  photo: undefined as string | undefined, // e.g. "/images/presenter.jpg"
+  photo: undefined as string | undefined, // e.g. "/images/presenter.gif"
   bio: "Passionate about building products at the intersection of design and engineering. I spend my days exploring how AI tools like v0 can supercharge the way we ship software.",
   links: [
     { label: "GitHub", href: "https://github.com" },
@@ -255,35 +255,35 @@ const BULLET_POINTS = [
     title: "Kickstart Your Project",
     description:
       "Starter templates and AI prompt enhancement turn a vague idea into a detailed, buildable spec in seconds.",
-    media: "/media/browse-templates.jpg",
+    media: "/media/browse-templates.mp4",
   },
   {
     icon: Paintbrush,
     title: "Polish the UI for Free",
     description:
       "Design mode lets you tweak styles and copy on any element live — without burning a single AI credit.",
-    media: "/media/design-mode.jpg",
+    media: "/media/design-mode.mp4",
   },
   {
     icon: Database,
     title: "Add Real Backend Power",
     description:
       "Natively connect databases, sync to GitHub, and brainstorm implementation details with the AI — all without leaving v0.",
-    media: undefined as string | undefined,
+    media: "/media/backend-sequence.mp4",
   },
   {
     icon: RotateCcw,
     title: "Experiment Without Fear",
     description:
       "Every change is auto-versioned with instant rollback, so you can try bold ideas and revert in one click.",
-    media: "/media/version-control.jpg",
+    media: "/media/version-control.mp4",
   },
   {
     icon: Rocket,
     title: "Ship Instantly",
     description:
       "One-click deploy gives you a live production URL, and export options let you download the code or push to GitHub when you're ready to move on.",
-    media: "/media/publish-to-vercel.jpg",
+    media: "/media/publish-to-vercel.mp4",
   },
 ]
 
@@ -397,7 +397,7 @@ export function FeaturesSlide() {
 
       {/* Media - Right Side */}
       <div className="flex items-center justify-center md:w-1/2">
-        <div className="relative h-full w-full overflow-hidden rounded-lg border border-border bg-card">
+        <div className="relative w-full aspect-video overflow-hidden rounded-lg border border-border bg-card">
           {BULLET_POINTS.map((point, i) => {
             const isActive = i === activeIndex
             return (
@@ -408,11 +408,13 @@ export function FeaturesSlide() {
                 }`}
                 aria-hidden={!isActive}
               >
-                <MediaDisplay
-                  src={point.media}
-                  alt={point.title}
-                  isActive={isActive}
-                />
+                {isActive && (
+                  <MediaDisplay
+                    src={point.media}
+                    alt={point.title}
+                    isActive={isActive}
+                  />
+                )}
               </div>
             )
           })}
@@ -560,12 +562,6 @@ export function TipsSlide() {
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="flex shrink-0 items-center justify-center pb-6">
-        <p className="font-mono text-[10px] text-muted-foreground/40">
-          {"Press ESC to go back"}
-        </p>
-      </div>
     </div>
   )
 }
