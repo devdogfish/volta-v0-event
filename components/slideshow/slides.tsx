@@ -140,22 +140,21 @@ export function CoverSlide() {
 }
 
 /* ================================================================== */
-/*  Slide 2 — Presenter Introduction                                  */
+/*  Slide 2 — Connect                                                 */
 /* ================================================================== */
 
 /**
- * Edit these constants to customise the presenter slide.
- * Set PRESENTER.photo to a path like "/images/presenter.gif" or leave
- * undefined for a placeholder initial avatar.
+ * Edit these constants to customise the connect slide.
+ * This is a lightweight slide so the audience knows how to reach you
+ * without turning the presentation into a personal showcase.
  */
-const PRESENTER = {
-  name: "Your Name",
-  role: "Software Engineer & AI Enthusiast",
-  photo: undefined as string | undefined, // e.g. "/images/presenter.gif"
-  bio: "Passionate about building products at the intersection of design and engineering. I spend my days exploring how AI tools like v0 can supercharge the way we ship software.",
+const CONNECT = {
+  name: "Luigi Girke",
+  handle:"",
+  // handle: "/in/luigigirke",
   links: [
-    { label: "GitHub", href: "https://github.com" },
-    { label: "Twitter / X", href: "https://x.com" },
+    { label: "GitHub", href: "https://github.com/devdogfish" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/luigigirke/" },
   ],
 }
 
@@ -168,60 +167,32 @@ export function PresenterSlide() {
   }, [])
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-8">
-      {/* Avatar */}
+    <div className="flex h-full flex-col items-center justify-center gap-6">
       <div
-        className={`transition-all duration-700 ease-out ${
-          mounted ? "scale-100 opacity-100" : "scale-90 opacity-0"
-        }`}
-      >
-        {PRESENTER.photo ? (
-          <div className="relative h-28 w-28 overflow-hidden rounded-full border-2 border-border">
-            <Image
-              src={PRESENTER.photo}
-              alt={PRESENTER.name}
-              fill
-              className="object-cover"
-            />
-          </div>
-        ) : (
-          <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-border bg-secondary">
-            <span className="font-sans text-4xl font-bold text-foreground">
-              {PRESENTER.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .slice(0, 2)}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Text block */}
-      <div
-        className={`flex max-w-md flex-col items-center gap-3 text-center transition-all delay-200 duration-700 ease-out ${
+        className={`flex flex-col items-center gap-4 transition-all duration-700 ease-out ${
           mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         }`}
       >
-        <h2 className="font-sans text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          {PRESENTER.name}
-        </h2>
         <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          {PRESENTER.role}
+          Presented by
         </p>
-        <p className="mt-2 text-balance font-sans text-sm leading-relaxed text-muted-foreground">
-          {PRESENTER.bio}
-        </p>
+        <h2 className="font-sans text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+          {CONNECT.name}
+        </h2>
+        {CONNECT.handle && (
+          <p className="font-mono text-sm text-muted-foreground">
+            {CONNECT.handle}
+          </p>
+        )}
       </div>
 
-      {/* Links */}
-      {PRESENTER.links.length > 0 && (
+      {CONNECT.links.length > 0 && (
         <div
-          className={`flex gap-4 transition-all delay-400 duration-700 ease-out ${
+          className={`flex gap-3 transition-all delay-300 duration-700 ease-out ${
             mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          {PRESENTER.links.map((link) => (
+          {CONNECT.links.map((link) => (
             <a
               key={link.label}
               href={link.href}

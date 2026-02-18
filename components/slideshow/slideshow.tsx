@@ -136,9 +136,19 @@ export function Slideshow() {
         >
           Press ESC to go back
         </span>
-        <span className="font-mono text-xs text-muted-foreground" aria-label={`Slide ${currentSlide + 1} of ${SLIDES.length}`}>
-          {currentSlide + 1} / {SLIDES.length}
-        </span>
+        <div className="flex items-center gap-4">
+          <a
+            href="https://v0-halifax.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            https://v0-halifax.vercel.app
+          </a>
+          <span className="font-mono text-xs text-muted-foreground" aria-label={`Slide ${currentSlide + 1} of ${SLIDES.length}`}>
+            {currentSlide + 1} / {SLIDES.length}
+          </span>
+        </div>
       </footer>
 
       <style jsx>{`
