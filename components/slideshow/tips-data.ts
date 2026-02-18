@@ -36,6 +36,8 @@ export interface Tip {
    * Falls back to DEFAULT_TIP_DURATION if not set.
    */
   duration?: number
+  /** Optional "Read more" link shown below the description. */
+  link?: { label: string; href: string }
 }
 
 /** Default display duration (ms) when a tip doesn't specify its own. */
@@ -93,7 +95,7 @@ export const TIPS: Tip[] = [
     description:
       "Paste a screenshot or mention shadcn/ui, Tailwind, or a specific color palette. v0 will match the aesthetic closely.",
     tag: "Inspiration",
-    // media: "/images/tips/design-system.jpg",
+    media: "/images/design-system.png",
   },
   {
     icon: Terminal,

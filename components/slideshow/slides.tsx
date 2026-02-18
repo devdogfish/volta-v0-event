@@ -9,6 +9,7 @@ import {
   RotateCcw,
   Rocket,
   ImageOff,
+  ArrowLeft,
 } from "lucide-react"
 import { TIPS, DEFAULT_TIP_DURATION } from "./tips-data"
 
@@ -401,8 +402,78 @@ export function FeaturesSlide() {
 
 const TRANSITION_DURATION = 800 // ms — matches the CSS animation length
 
+/**
+ * Builds one round of tip indices with category-aware shuffling.
+ *
+ * Algorithm:
+ *   1. Group tip indices by category and Fisher-Yates shuffle within each group.
+ *   2. Greedily interleave: always pull from the largest group that isn't the
+ *      same category as the last-shown tip, so same-category runs are rare.
+ *   3. When multiple groups are close in size (within 1), pick randomly among
+ *      them to add variety rather than always following a fixed pattern.
+ *   4. Falls back to any non-empty group if all remaining items share the last
+ *      category (mathematically unavoidable when one category dominates).
+ *
+ * The `prevLastTag` parameter lets the first tip of a new round differ from
+ * the last tip of the previous round, eliminating cross-round same-category
+ * transitions.
+ */
+function buildRound(prevLastTag?: string): number[] {
+  // Group tip indices by category
+  const buckets = new Map<string, number[]>()
+  TIPS.forEach((tip, i) => {
+    const key = tip.tag ?? "uncategorized"
+    if (!buckets.has(key)) buckets.set(key, [])
+    buckets.get(key)!.push(i)
+  })
+
+  // Shuffle within each bucket for intra-category randomness
+  for (const bucket of buckets.values()) {
+    for (let i = bucket.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[bucket[i], bucket[j]] = [bucket[j], bucket[i]]
+    }
+  }
+
+  const result: number[] = []
+  let lastTag: string | undefined = prevLastTag
+
+  while (result.length < TIPS.length) {
+    const available = [...buckets.entries()]
+      .filter(([, b]) => b.length > 0)
+      .sort((a, b) => b[1].length - a[1].length)
+    if (available.length === 0) break
+
+    // Prefer any category other than the last shown
+    const eligible = available.filter(([tag]) => tag !== lastTag)
+    const pool = eligible.length > 0 ? eligible : available
+
+    // Among buckets within 1 of the max remaining count, pick randomly
+    const maxCount = pool[0][1].length
+    const topTier = pool.filter(([, b]) => b.length >= maxCount - 1)
+    const [chosenTag, chosenBucket] =
+      topTier[Math.floor(Math.random() * topTier.length)]
+
+    result.push(chosenBucket.pop()!)
+    lastTag = chosenTag
+  }
+
+  return result
+}
+
 export function TipsSlide() {
-  const [activeIndex, setActiveIndex] = useState(0)
+  // Round management: orderRef holds the pre-computed sequence of TIPS indices
+  // for the current round; posRef tracks our position within it.
+  // Both are refs so callbacks always see the latest values without stale closures.
+  const orderRef = useRef<number[]>([])
+  const posRef = useRef(0)
+
+  const [activeIndex, setActiveIndex] = useState<number>(() => {
+    const order = buildRound()
+    orderRef.current = order
+    posRef.current = 0
+    return order[0]
+  })
   const [prevIndex, setPrevIndex] = useState<number | null>(null)
   const isTransitioning = useRef(false)
   const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -410,23 +481,47 @@ export function TipsSlide() {
 
   const count = TIPS.length
 
-  const goTo = useCallback(
-    (next: number) => {
+  const advance = useCallback(
+    (dir: 1 | -1) => {
       if (isTransitioning.current) return
       isTransitioning.current = true
-      const wrapped = ((next % count) + count) % count
+
+      const curPos = posRef.current
+      const order = orderRef.current
+      let nextIdx: number
+
+      if (dir === 1) {
+        const nextPos = curPos + 1
+        if (nextPos >= order.length) {
+          // End of round — build a fresh round seeded with the last shown category
+          // so the first tip of the new round differs from the last of this one
+          const newOrder = buildRound(TIPS[activeIndex].tag)
+          orderRef.current = newOrder
+          posRef.current = 0
+          nextIdx = newOrder[0]
+        } else {
+          posRef.current = nextPos
+          nextIdx = order[nextPos]
+        }
+      } else {
+        // Going backward stays within the current round (wraps to end)
+        const prevPos = curPos > 0 ? curPos - 1 : order.length - 1
+        posRef.current = prevPos
+        nextIdx = order[prevPos]
+      }
+
       setPrevIndex(activeIndex)
-      setActiveIndex(wrapped)
+      setActiveIndex(nextIdx)
       setTimeout(() => {
         setPrevIndex(null)
         isTransitioning.current = false
       }, TRANSITION_DURATION)
     },
-    [activeIndex, count]
+    [activeIndex]
   )
 
-  const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo])
-  const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo])
+  const goNext = useCallback(() => advance(1), [advance])
+  const goPrev = useCallback(() => advance(-1), [advance])
 
   // Schedule auto-advance using the current tip's duration
   const scheduleNext = useCallback(() => {
@@ -493,43 +588,53 @@ export function TipsSlide() {
       <p className="max-w-lg text-balance font-sans text-sm leading-relaxed text-muted-foreground">
         {tip.description}
       </p>
+
+      {/* Optional read-more link */}
+      {tip.link && (
+        <a
+          href={tip.link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-mono text-xs text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground"
+        >
+          {tip.link.label}
+        </a>
+      )}
     </>
   )
 
   return (
     <div
       ref={containerRef}
-      className="flex h-full flex-col"
+      className="relative flex h-full items-center justify-center"
       role="region"
       aria-label="Tips and Tricks"
       aria-roledescription="carousel"
     >
       {/* Centered content */}
-      <div className="flex flex-1 items-center justify-center">
-        <div className="relative w-full max-w-2xl px-6">
-          {/* Exiting tip */}
-          {prevIndex !== null && (
-            <div
-              key={`exit-${prevIndex}`}
-              className="absolute inset-0 flex flex-col items-center gap-6 px-6 text-center animate-tip-exit"
-              aria-hidden="true"
-            >
-              {renderTip(TIPS[prevIndex], false)}
-            </div>
-          )}
-
-          {/* Active tip */}
+      <div className="relative w-full max-w-2xl px-6">
+        {/* Exiting tip */}
+        {prevIndex !== null && (
           <div
-            key={`enter-${activeIndex}`}
-            className={`flex flex-col items-center gap-6 text-center ${
-              prevIndex !== null ? "animate-tip-enter" : ""
-            }`}
-            role="group"
-            aria-roledescription="slide"
-            aria-label={`${activeIndex + 1} of ${count}`}
+            key={`exit-${prevIndex}`}
+            className="absolute inset-0 flex flex-col items-center gap-6 px-6 text-center animate-tip-exit"
+            aria-hidden="true"
           >
-            {renderTip(TIPS[activeIndex], true)}
+            {renderTip(TIPS[prevIndex], false)}
           </div>
+        )}
+
+        {/* Active tip */}
+        <div
+          key={`enter-${activeIndex}`}
+          className={`flex flex-col items-center gap-6 text-center ${
+            prevIndex !== null ? "animate-tip-enter" : ""
+          }`}
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${activeIndex + 1} of ${count}`}
+        >
+          {renderTip(TIPS[activeIndex], true)}
         </div>
       </div>
 
