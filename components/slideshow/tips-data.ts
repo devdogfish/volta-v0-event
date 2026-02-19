@@ -63,8 +63,10 @@ export const TIPS: Tip[] = [
     icon: Lightbulb,
     title: "Start with a Clear Prompt",
     description:
-      "The more specific your initial prompt, the closer v0 gets on the first try. Mention the layout, the vibe, and what the app should do.",
+      "The more specific your initial prompt, the closer v0 gets on the first try. Mention the layout, the vibe, and what the app should do. Use the Enhanced Prompt feature to let v0 expand your idea into a detailed spec before it starts building — it fills in the gaps you might miss.",
     tag: "Tip",
+    media: "/media/separate/enhanced-detailed-prompt.mp4",
+    duration: 12000,
   },
   {
     icon: Layers,

@@ -177,8 +177,8 @@ const CONNECT = {
   handle:"",
   // handle: "/in/luigigirke",
   links: [
-    { label: "GitHub", href: "https://github.com/devdogfish" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/luigigirke/" },
+    { label: "GitHub", href: "https://github.com/devdogfish" },
   ],
 }
 
